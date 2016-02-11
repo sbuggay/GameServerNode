@@ -2,26 +2,28 @@ package com.devan;
 
 
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 
+import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+import com.devan.models.GameServerConfiguration;
 import org.apache.commons.io.FileUtils;
 
 public class GameServer {
 
     public static String HomeDirectory = System.getProperty("user.home");
 
-    public static boolean CreateServer(String server) {
-        boolean success = new File(HomeDirectory, "GameServerNode/" + server).mkdirs();
+    public static boolean CreateServer(GameServerConfiguration configuration) {
+        boolean success = new File(HomeDirectory, "GameServerNode/" + configuration.ServerName).mkdirs();
 
         try {
-
-            System.out.println(download("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver", server));
+            System.out.println(download("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver", configuration.ServerName));
         }
         catch (IOException e) {
             System.out.println(e.toString());
@@ -44,6 +46,18 @@ public class GameServer {
 
     public static boolean ExecuteServerCommand(String server, String command) {
 
+        try {
+            Process process = Runtime.getRuntime().exec("./server " + command, null, new File(HomeDirectory, "GameServerNode/" + server));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(
+                    process.getInputStream()));
+            String s;
+            while ((s = reader.readLine()) != null) {
+                System.out.println("Script output: " + s);
+            }
+        }
+        catch (IOException e){
+            System.out.println(e.toString());
+        }
         return true;
     }
 
