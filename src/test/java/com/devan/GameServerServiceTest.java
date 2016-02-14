@@ -5,7 +5,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 
-public class GameServerTest {
+public class GameServerServiceTest {
 
     @Test
     public void testCreateServer() throws Exception {

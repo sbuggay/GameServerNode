@@ -1,32 +1,39 @@
 package com.devan.api;
 
-import com.devan.GameServer;
+import com.devan.services.GameServerService;
 import com.devan.models.GameServerConfiguration;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
-@RequestMapping(path = "/api")
+@RequestMapping(path = "/api/v1")
 public class ApiController {
 
     @RequestMapping(path = "/create", method = RequestMethod.POST)
-    public boolean CreateServer(GameServerConfiguration configuration) {
-        return GameServer.CreateServer(configuration);
+    public boolean CreateServer(@RequestBody GameServerConfiguration configuration) {
+        return GameServerService.CreateServer(configuration);
     }
 
-    @RequestMapping(path = "/destroy", method = RequestMethod.POST)
+    @RequestMapping(path = "/destroy", method = RequestMethod.DELETE)
     public boolean DestroyServer(String name) {
-        return GameServer.DestroyServer(name);
+        return GameServerService.DestroyServer(name);
     }
 
     @RequestMapping(path = "/execute", method = RequestMethod.POST)
-    public boolean DestroyServer(String name, String command) {
-        return GameServer.ExecuteServerCommand(name, command);
+    public boolean ExecuteServer(String name, String command) {
+        return GameServerService.ExecuteServerCommand(name, command);
     }
 
     @RequestMapping(path = "/list", method = RequestMethod.GET)
-    public boolean GetServers() {
-        return GameServer.GetServers();
+    public ResponseEntity<List<GameServerConfiguration>> GetAllServers() {
+        return new ResponseEntity<>(GameServerService.GetServers(), HttpStatus.OK);
+    }
+
+    @RequestMapping(path = "/info", method = RequestMethod.GET)
+    public ResponseEntity<GameServerConfiguration> GetServer(String name) {
+        return new ResponseEntity<>(GameServerService.GetServerInfo(name), HttpStatus.OK);
     }
 }
