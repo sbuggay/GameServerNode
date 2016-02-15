@@ -24,13 +24,13 @@ public class FileSystemServiceTest {
     @Test
     public void testDeleteDirectory() throws Exception {
         File file = new File(FileSystemService.GameServerNodeDir, "test2");
-        file.mkdirs();
+
+        assert file.mkdirs();
 
         FileSystemService.DeleteDirectory("test2");
 
         assert !file.exists();
-
-        file.delete();
+        assert file.delete();
     }
 
     @Test

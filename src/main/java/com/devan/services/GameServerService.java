@@ -27,13 +27,15 @@ public class GameServerService {
 
         //TODO: How do I get this error message back up to the API?
 
+        configuration.uuid = UUID.nameUUIDFromBytes(configuration.name.getBytes()).toString();
+
         if (FileSystemService.DirectoryCount() >= MaxGameServers)
             return null;
 
-        FileSystemService.CreateDirectory(UUID.nameUUIDFromBytes(configuration.name.getBytes()).toString());
+        FileSystemService.CreateDirectory(configuration.uuid);
 
         Path path = FileSystemService.DownloadFile("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver",
-                    UUID.nameUUIDFromBytes(configuration.name.getBytes()).toString(), "server");
+                configuration.uuid, "server");
 
         if (path == null)
             return null;
@@ -59,6 +61,9 @@ public class GameServerService {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        // Store properties file
+
 
         return configuration;
     }

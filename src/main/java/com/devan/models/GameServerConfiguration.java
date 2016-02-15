@@ -12,7 +12,7 @@ public class GameServerConfiguration {
     public String desc = "";
     public String tags = "";
     public String gameid = "";
-    public int port = 27015;
+    public String port = "27015";
 
     public String GSLT = "";
     public String workshopkey = "";
@@ -25,6 +25,16 @@ public class GameServerConfiguration {
         try {
             OutputStream output = new FileOutputStream(file);
 
+            prop.setProperty("name", name);
+            prop.setProperty("desc", desc);
+            prop.setProperty("tags", tags);
+            prop.setProperty("gameid", gameid);
+            prop.setProperty("port", port);
+            prop.setProperty("GSLT", GSLT);
+            prop.setProperty("workshopkey", workshopkey);
+            prop.setProperty("uuid", uuid);
+
+            prop.store(output, file.getName());
 
         }
         catch (IOException e) {
@@ -43,7 +53,7 @@ public class GameServerConfiguration {
             desc = prop.getProperty("desc");
             tags = prop.getProperty("tags");
             gameid = prop.getProperty("gameid");
-            port = Integer.getInteger(prop.getProperty("port"));
+            port = prop.getProperty("port");
             GSLT = prop.getProperty("GSLT");
             workshopkey = prop.getProperty("workshopkey");
             uuid = prop.getProperty("uuid");
