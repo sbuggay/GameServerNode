@@ -1,4 +1,4 @@
-package com.devan;
+package com.devan.services;
 
 import org.junit.Test;
 

@@ -4,6 +4,7 @@ import com.devan.models.GameServerCommand;
 import com.devan.services.GameServerService;
 import com.devan.models.GameServerConfiguration;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -11,20 +12,21 @@ import org.springframework.web.bind.annotation.*;
 public class ApiController {
 
     @RequestMapping(path = "/create", method = RequestMethod.POST)
-    public HttpStatus CreateServer(@RequestBody GameServerConfiguration configuration) {
-        GameServerService.CreateServer(configuration);
-        return HttpStatus.CREATED;
+    public ResponseEntity<?> CreateServer(@RequestBody GameServerConfiguration configuration) {
+        GameServerConfiguration updatedConfig = GameServerService.CreateServer(configuration);
+        return new ResponseEntity<>(updatedConfig, HttpStatus.OK);
     }
 
     @RequestMapping(path = "/destroy", method = RequestMethod.DELETE)
-    public boolean DestroyServer(String name) {
-        return GameServerService.DestroyServer(name);
+    public ResponseEntity<?> DestroyServer(String name) {
+        GameServerService.DestroyServer(name);
+        return new ResponseEntity<>("done", HttpStatus.OK);
     }
 
     @RequestMapping(path = "/execute", method = RequestMethod.POST)
-    public HttpStatus ExecuteServer(@RequestBody GameServerCommand command) {
+    public ResponseEntity<?> ExecuteServer(@RequestBody GameServerCommand command) {
         GameServerService.ExecuteServerCommand(command);
-        return HttpStatus.ACCEPTED;
+        return new ResponseEntity<>("done", HttpStatus.OK);
     }
 
 //    @RequestMapping(path = "/list", method = RequestMethod.GET)

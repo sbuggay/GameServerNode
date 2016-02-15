@@ -2,48 +2,47 @@ package com.devan.services;
 
 import java.io.*;
 
-import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.*;
 
 import com.devan.models.GameServerCommand;
 import com.devan.models.GameServerConfiguration;
-import org.apache.commons.io.FileUtils;
 
 
 public class GameServerService {
 
-    public static String HomeDirectory = System.getProperty("user.home");
-
-
     //TODO: UUID.nameUUIDFromBytes needs to be refactored into another function or done before this service get it.
+
+    final int MaxGameServers = 10;
 
     /**
      * Create server with configuration.
      * @param configuration Configuration for server to set it's properties to.
      * @return Returns true if successful.
      */
-    public static boolean CreateServer(GameServerConfiguration configuration) {
-        boolean success = new File(HomeDirectory, "GameServerNode/" + UUID.nameUUIDFromBytes(configuration.name.getBytes())).mkdirs();
+    public static GameServerConfiguration CreateServer(GameServerConfiguration configuration) {
 
+        //TODO: How do I get this error message back up to the API?
 
-        try {
-            download("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver",
+        if (FileSystemService.DirectoryCount() >= MaxGameServers)
+            return null;
+
+        FileSystemService.CreateDirectory(UUID.nameUUIDFromBytes(configuration.name.getBytes()).toString());
+
+        Path path = FileSystemService.DownloadFile("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver",
                     UUID.nameUUIDFromBytes(configuration.name.getBytes()).toString(), "server");
-        }
-        catch (IOException e) {
-            System.out.println(e.toString());
-        }
 
-        Path path = new File(HomeDirectory, "GameServerNode/" + UUID.nameUUIDFromBytes(configuration.name.getBytes()) + "/server").toPath();
+        if (path == null)
+            return null;
+
+
         Charset charset = StandardCharsets.UTF_8;
 
 
-        //TODO: Clean this up.
+        //TODO: Clean this up. Write a helper for it maybe
         String content = null;
         try {
             content = new String(Files.readAllBytes(path),
@@ -61,7 +60,7 @@ public class GameServerService {
             e.printStackTrace();
         }
 
-        return success;
+        return configuration;
     }
 
     /**
@@ -70,16 +69,7 @@ public class GameServerService {
      * @return Returns true if successful.
      */
     public static boolean DestroyServer(String server) {
-
-        try {
-            FileUtils.deleteDirectory(new File(HomeDirectory, "GameServerNode/" + UUID.nameUUIDFromBytes(server.getBytes())));
-            return true;
-        }
-        catch (IOException e) {
-            System.out.println(e.toString());
-        }
-
-        return false;
+        return FileSystemService.DeleteDirectory(server);
     }
 
     /**
@@ -92,7 +82,7 @@ public class GameServerService {
         try {
 
             final ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "server", command.command)
-                    .directory(new File(HomeDirectory, "GameServerNode/" + UUID.nameUUIDFromBytes(command.name.getBytes())));
+                    .directory(new File(FileSystemService.GameServerNodeDir, UUID.nameUUIDFromBytes(command.name.getBytes()).toString()));
 
             final Process process = processBuilder.start();
 
@@ -171,19 +161,5 @@ public class GameServerService {
 //        return config;
 //    }
 
-    /**
-     * Download specified url to target directory.
-     * @param sourceUrl URL of download source.
-     * @param targetDirectory Directory to download to.
-     * @return Returns path of downloaded file.
-     */
-    public static Path download(String sourceUrl, String targetDirectory, String fileName) throws IOException
-    {
-        URL url = new URL(sourceUrl);
 
-        Path targetPath = new File(HomeDirectory, "GameServerNode/" + targetDirectory + "/" + fileName).toPath();
-        Files.copy(url.openStream(), targetPath, StandardCopyOption.REPLACE_EXISTING);
-
-        return targetPath;
-    }
 }
