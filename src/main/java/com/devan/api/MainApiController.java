@@ -24,7 +24,7 @@ public class MainApiController {
     @RequestMapping(path = "/destroy", method = RequestMethod.DELETE)
     public ResponseEntity<?> DestroyServer(String name) {
         GameServerService.DestroyServer(name);
-        return new ResponseEntity<>("zdone", HttpStatus.OK);
+        return new ResponseEntity<>("done", HttpStatus.OK);
     }
 
     @RequestMapping(path = "/execute", method = RequestMethod.POST)
@@ -32,7 +32,6 @@ public class MainApiController {
         GameServerService.ExecuteServerCommand(command);
         return new ResponseEntity<>("done", HttpStatus.OK);
     }
-
 
 
     @RequestMapping(path = "/list", method = RequestMethod.GET)

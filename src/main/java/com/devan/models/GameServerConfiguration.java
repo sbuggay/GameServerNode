@@ -18,6 +18,10 @@ public class GameServerConfiguration {
 
     public String uuid;
 
+    /**
+     * Save configuration to file.
+     * @param file File to save to.
+     */
     public void save(File file) {
         Properties prop = new Properties();
 
@@ -41,6 +45,10 @@ public class GameServerConfiguration {
         }
     }
 
+    /**
+     * Load configuration from file.
+     * @param file File to load from.
+     */
     public void load(File file) {
         Properties prop = new Properties();
 

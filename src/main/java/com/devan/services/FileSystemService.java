@@ -13,8 +13,16 @@ import java.nio.file.StandardCopyOption;
 
 public class FileSystemService {
 
+    /**
+     * GameServerNode directory.
+     */
     public static File GameServerNodeDir = new File(System.getProperty("user.home"), "/GameServerNode");
 
+    /**
+     * Create directory.
+     * @param directoryName Directory name to create.
+     * @return Returns path to directory.
+     */
     public static Path CreateDirectory(String directoryName) {
         File dir = new File(GameServerNodeDir, directoryName);
         final boolean success = dir.mkdirs();
@@ -24,6 +32,24 @@ public class FileSystemService {
         else {
             return null;
         }
+    }
+
+    public static Path MoveDirectory(File source, File target) {
+        try {
+            FileUtils.moveDirectory(source, target);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return target.toPath();
+    }
+
+    public static Path CopyDirectory(File source, File target) {
+        try {
+            FileUtils.copyDirectory(source, target);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return target.toPath();
     }
 
     /**
@@ -41,6 +67,10 @@ public class FileSystemService {
         return !FileExists(directoryName);
     }
 
+    /**
+     * Get directory count.
+     * @return Returns number of directories (servers) in home directory.
+     */
     public static int DirectoryCount() {
         File files[] = GameServerNodeDir.listFiles();
         if (files == null) {
