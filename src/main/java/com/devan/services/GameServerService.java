@@ -10,13 +10,14 @@ import java.util.*;
 
 import com.devan.models.GameServerCommand;
 import com.devan.models.GameServerConfiguration;
+import com.devan.models.ServerScriptUrl;
 
 
 public class GameServerService {
 
     //TODO: UUID.nameUUIDFromBytes needs to be refactored into another function or done before this service get it.
 
-    final int MaxGameServers = 10;
+    final static int MaxGameServers = 10;
 
     /**
      * Create server with configuration.
@@ -34,11 +35,13 @@ public class GameServerService {
 
         FileSystemService.CreateDirectory(configuration.uuid);
 
-        Path path = FileSystemService.DownloadFile("https://raw.githubusercontent.com/dgibbs64/linuxgameservers/master/CounterStrikeGlobalOffensive/csgoserver",
+        Path path = FileSystemService.DownloadFile(ServerScriptUrl.getUrlForGame(configuration.gameid),
                 configuration.uuid, "server");
 
         if (path == null)
             return null;
+
+        configuration.save(new File(FileSystemService.GameServerNodeDir + "/" + configuration.uuid, "server.properties"));
 
 
         Charset charset = StandardCharsets.UTF_8;
@@ -55,15 +58,13 @@ public class GameServerService {
         assert content != null;
         content = content.replaceAll("port=\"27015\"", "port=\"" + configuration.port +"\"");
         content = content.replaceAll("ip=\"0.0.0.0\"", "ip=\"127.0.0.1\"");
-        content = content.replaceAll("gamename=\"Counter Strike: Global Offensive\"", "gamename=\"" + configuration.name +"\"");
+        content = content.replaceAll("gamename=\"Counter Strike: Global Offensive\"",
+                "gamename=\"" + configuration.name +"\"");
         try {
             Files.write(path, content.getBytes(charset));
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // Store properties file
-
 
         return configuration;
     }
@@ -87,7 +88,7 @@ public class GameServerService {
         try {
 
             final ProcessBuilder processBuilder = new ProcessBuilder("/bin/bash", "server", command.command)
-                    .directory(new File(FileSystemService.GameServerNodeDir, UUID.nameUUIDFromBytes(command.name.getBytes()).toString()));
+                    .directory(new File(FileSystemService.GameServerNodeDir, command.uuid));
 
             final Process process = processBuilder.start();
 
@@ -113,58 +114,35 @@ public class GameServerService {
      * List all servers.
      * @return Returns JSON array of all server properties.
      */
-//    public static List<GameServerConfiguration> GetServers() {
-//        File[] directories = new File(HomeDirectory, "GameServerNode/").listFiles(File::isDirectory);
-//
-//        List<GameServerConfiguration> servers = new ArrayList<>();
-//
-//
-//        //TODO: Refactor this to use GetServerInfo
-//        Properties prop = new Properties();
-//
-//        for (File directory : directories) {
-//            try {
-//                InputStream input = new FileInputStream(new File(directory + "/server.properties"));
-//                prop.load(input);
-//
-//                GameServerConfiguration config = new GameServerConfiguration();
-//
-//                config.setFromProperties(prop);
-//
-//                servers.add(config);
-//            }
-//            catch (IOException e) {
-//                System.out.println(e.toString());
-//            }
-//        }
-//
-//        return servers;
-//    }
+    public static List<GameServerConfiguration> GetAllServers() {
+        File[] directories = FileSystemService.GameServerNodeDir.listFiles(File::isDirectory);
+
+        List<GameServerConfiguration> servers = new ArrayList<>();
+
+
+        //TODO: Refactor this to use GetServerInfo
+
+        for (File directory : directories) {
+
+            GameServerConfiguration config = new GameServerConfiguration();
+            config.load(new File(directory + "/server.properties"));
+            servers.add(config);
+
+        }
+
+        return servers;
+    }
 
     /**
      * Get information on a specific server.
-     * @param server Specified server name.
+     * @param uuid Specified server name.
      * @return JSON object of server properties.
      */
-//    public static GameServerConfiguration GetServerInfo(String server) {
-//
-//        Properties prop = new Properties();
-//
-//        try {
-//            InputStream input = new FileInputStream(new File(HomeDirectory, "GameServerNode/" + UUID.nameUUIDFromBytes(server.getBytes()) + "/server.properties"));
-//            prop.load(input);
-//
-//        }
-//        catch (IOException e) {
-//            System.out.println(e.toString());
-//        }
-//
-//        GameServerConfiguration config = new GameServerConfiguration();
-//
-//        config.setFromProperties(prop);
-//
-//        return config;
-//    }
+    public static GameServerConfiguration GetServerInfo(String uuid) {
+        GameServerConfiguration config = new GameServerConfiguration();
+        config.load(new File(FileSystemService.GameServerNodeDir + "/" + uuid, "/server.properties"));
+        return config;
+    }
 
 
 }
