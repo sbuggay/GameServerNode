@@ -83,7 +83,7 @@ public class GameServerService {
      * @param command Server to run command.
      * @return Returns true if successful.
      */
-    public static boolean ExecuteServerCommand(GameServerCommand command) {
+    public static String ExecuteServerCommand(GameServerCommand command) {
 
         try {
 
@@ -107,7 +107,7 @@ public class GameServerService {
             System.out.println(e.toString());
         }
 
-        return true;
+        return "true";
     }
 
     /**
@@ -119,15 +119,8 @@ public class GameServerService {
 
         List<GameServerConfiguration> servers = new ArrayList<>();
 
-
-        //TODO: Refactor this to use GetServerInfo
-
         for (File directory : directories) {
-
-            GameServerConfiguration config = new GameServerConfiguration();
-            config.load(new File(directory + "/server.properties"));
-            servers.add(config);
-
+            servers.add(GetServerInfo(directory.getName()));
         }
 
         return servers;
@@ -139,6 +132,8 @@ public class GameServerService {
      * @return JSON object of server properties.
      */
     public static GameServerConfiguration GetServerInfo(String uuid) {
+        // Check if file exists
+
         GameServerConfiguration config = new GameServerConfiguration();
         config.load(new File(FileSystemService.GameServerNodeDir + "/" + uuid, "/server.properties"));
         return config;
